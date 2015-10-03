@@ -1,0 +1,17 @@
+{
+  "name": "Mahjong",
+  "version": "0.0.1",
+  "authors": [
+    "bodqhrohro"
+  ],
+  "description": "Mahjong solitaire, a tile playing game",
+  "main": "index.html",
+  "keywords": [
+    "mahjong",
+    "solitaire",
+    "game"
+  ],
+  "license": "MIT",
+  "dependencies": {
+  }
+}

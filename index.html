@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Mahjong Solitaire</title>
+
+	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+	
+	<script src="bower_components/foundation/js/foundation.min.js"></script>
+	<link rel="stylesheet" href="bower_components/foundation/css/foundation.min.css">
+	<script src="bower_components/foundation/js/vendor/modernizr.js"></script>
+
+	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
+
+	<script src="bower_components/underscore/underscore-min.js"></script>
+	
+
+	<script src="js/main.js"></script>
+	<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+	<nav class="top-bar">
+		<ul class="top-bar-section">
+			<ul class="title-area" id="mainToolbar">
+				<li><a href="#" data-tooltip class="has-tip" title="Undo"><i class="fa fa-undo"></i></a>
+				<li><a href="#" data-tooltip class="has-tip" title="Redo"><i class="fa fa-repeat"></i></a>
+				<li><a href="#" data-tooltip class="has-tip" title="Restart"><i class="fa fa-random"></i></a>
+				<li><a href="#" data-tooltip class="has-tip" title="Pause"><i class="fa fa-pause"></i></a>
+				<li><a href="#" data-tooltip class="has-tip" title="I'm in stuck!"><i class="fa fa-question"></i></a>
+			</ul>
+		</ul>
+	</nav>
+	<div id="gameViewport">
+	</div>
+	<script type="x-underscore-template" id="tileTemplate">
+		<div class="mahjong-tile">
+			<div class="mahjong-tile-content">
+			</div>
+		</div>
+	</script>
+</body>
+</html>

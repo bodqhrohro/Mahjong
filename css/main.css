@@ -1,0 +1,20 @@
+body {
+	font-size: 10px;
+}
+
+#gameViewport {
+	width: 75em;
+	height: 56em;
+	margin: 8em 0;
+	position: relative;
+}
+
+.mahjong-tile {
+	width: 5em;
+	height: 7em;
+	/* box-shadow: 0 0 0.1em 0.2em rgba(0,0,0,0.5); */
+	border: 1pt solid #666;
+	border-radius: 2px;
+	position: absolute;
+	background-color: #fff;
+}
