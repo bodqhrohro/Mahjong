@@ -5,14 +5,15 @@ body {
 #gameViewport {
 	width: 75em;
 	height: 56em;
-	margin: 8em 0;
+	margin: 8em 1em;
 	position: relative;
+	font-size: 8px;
 }
 
 .mahjong-tile {
 	width: 5em;
 	height: 7em;
-	/* box-shadow: 0 0 0.1em 0.2em rgba(0,0,0,0.5); */
+	box-shadow: 0 0 0.1em 0.3em rgba(0,0,0,0.5);
 	border: 1pt solid #666;
 	border-radius: 2px;
 	position: absolute;
