@@ -210,18 +210,18 @@ define(function(require) {
 					,   cell1 = mahjong.map[coords1.z][coords1.y][coords1.x]
 					,   cell2 = mahjong.map[coords2.z][coords2.y][coords2.x]
 
-					if (mahjong._match(cell1.value, cell2.value)) {
+					if (mahjong._match(cell1.value, cell2.value) && mahjong._firstSelected !== this) {
 						$node1.hide()
 						$node2.hide()
 						mahjong._history.push(cell1.present)
 						mahjong._history.push(cell2.present)
 						cell1.present = mahjong.TILE_NONE
 						cell2.present = mahjong.TILE_NONE
-					} else {
-						$(this).removeClass('selected')
-						$(mahjong._firstSelected).removeClass('selected')
-						delete mahjong._firstSelected
 					}
+
+					$(this).removeClass('selected')
+					$(mahjong._firstSelected).removeClass('selected')
+					mahjong._firstSelected = null
 				} else {
 					mahjong._firstSelected = this
 				}
