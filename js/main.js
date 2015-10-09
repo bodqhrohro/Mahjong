@@ -29,6 +29,7 @@ define(function (require) {
 		
 		mahjong.setContainer('#gameViewport')
 		mahjong.scale(3)
+		mahjong.init()
 		mahjong.shuffle()
 	})
 })

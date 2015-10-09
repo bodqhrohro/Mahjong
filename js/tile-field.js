@@ -56,7 +56,7 @@ define(function() {
 					return {
 						x: x*2 + z*0.12 + (cell==3 || cell==4 ? 1 : 0),
 						y: y*2 - z*0.12 + (cell==2 || cell==4 ? 1 : 0),
-						present: !!cell,
+						present: cell,
 						//suit: null,
 						value: null,
 						node: null

@@ -1,6 +1,68 @@
 define(function(require) {
 	return {
+		BING: "qwertyuio",
+		TIAO: "zxcvbnm,.",
+		WAN: "asdfghjkl",
+		WIND: "1234",
+		DRAGON: "567",
+		FLOWER: "=[]\\",
+		SEASON: "p;/`",
+		TILE_NONE: 0,
+		TILE_PRESENT: 1,
+		TILE_YSHIFTED: 2,
+		TILE_XSHIFTED: 3,
+		TILE_XYSHIFTED: 4,
+
+		_history: [],
+		
+		_isFree: function(node) {
+			return this._isTop(node) && !this._isLocked(node)
+		},
+		_isLocked: function(node) {
+			var coords = $(node).data('coords')
+			return coords.x &&
+				coords.x < this.map[0][0].length-1 && (
+					this.map[coords.z][coords.y][coords.x-1].present || coords.y && (
+						this.map[coords.z][coords.y-1][coords.x-1].present == this.TILE_YSHIFTED ||
+						this.map[coords.z][coords.y-1][coords.x-1].present == this.TILE_XYSHIFTED
+					)
+				) && (
+					this.map[coords.z][coords.y][coords.x+1].present || coords.y && (
+						this.map[coords.z][coords.y-1][coords.x+1].present == this.TILE_YSHIFTED ||
+						this.map[coords.z][coords.y-1][coords.x+1].present == this.TILE_XYSHIFTED
+					)
+				)
+		},
+		_isTop: function(node) {
+			var coords = $(node).data('coords')
+			if (coords.z+1 < this.map.length) {
+				var topLayer = this.map[coords.z+1]
+				return (
+					topLayer[coords.y][coords.x].present || (
+						coords.y && (
+							topLayer[coords.y-1][coords.x].present == this.TILE_YSHIFTED ||
+							topLayer[coords.y-1][coords.x].present == this.TILE_XYSHIFTED
+						)
+					) || (
+						coords.x && (
+							topLayer[coords.y][coords.x-1].present == this.TILE_XSHIFTED ||
+							topLayer[coords.y][coords.x-1].present == this.TILE_XYSHIFTED
+						)
+					) || (
+						coords.x && coords.y &&
+						topLayer[coords.y-1][coords.x-1].present == this.TILE_XYSHIFTED
+					)
+				) ? false : true
+			} else {
+				return true
+			}
+		},
 		//depends on font!
+		_match: function(value1, value2) {
+			return value1 == value2 ||
+				this.FLOWER.indexOf(value1) > -1 && this.FLOWER.indexOf(value2) > -1 ||
+				this.SEASON.indexOf(value1) > -1 && this.SEASON.indexOf(value2) > -1
+		},
 		_walkRectangle: function(level, coords, callback) {
 			var i = coords.top, j
 			var ret = function() {
@@ -16,9 +78,10 @@ define(function(require) {
 			for (; j>coords.left; j--) ret()
 			for (; i>coords.top; i--) ret()
 		},
-		fill: function() {
-			var tiles4 = "qwertyuioasdfghjklzxcvbnm,.1234567"
-			var tiles1 = "p;/`=[]\\"
+		//depends on font!
+		shuffle: function() {
+			var tiles4 = this.BING + this.WAN + this.TIAO + this.WIND + this.DRAGON
+			var tiles1 = this.FLOWER + this.SEASON
 
 			var tileSet = _.shuffle(
 				tiles4 + tiles4
@@ -85,7 +148,7 @@ define(function(require) {
 				)
 			}.bind(this))
 		},
-		shuffle: function() {
+		init: function() {
 			var mahjong = this
 
 			this.map = require('tile-field')()
@@ -108,16 +171,44 @@ define(function(require) {
 									y: y,
 									z: z
 								})
-							$tile.find('.mahjong-tile-content')
-								.html('A')
 
 							cell.node = $tile.get(0)
 						}
 					})
 				})
 			})
-			
-			this.fill()
+
+			$(this.container).delegate('.mahjong-tile', 'click', function() {
+				if (!mahjong._isFree(this)) {
+					return false
+				}
+
+				$(this).addClass('selected')
+
+				if (mahjong._firstSelected) {
+					var $node1 = $(mahjong._firstSelected)
+					,   $node2 = $(this)
+					,   coords1 = $node1.data('coords')
+					,   coords2 = $node2.data('coords')
+					,   cell1 = mahjong.map[coords1.z][coords1.y][coords1.x]
+					,   cell2 = mahjong.map[coords2.z][coords2.y][coords2.x]
+
+					if (mahjong._match(cell1.value, cell2.value)) {
+						$node1.hide()
+						$node2.hide()
+						mahjong._history.push(cell1.present)
+						mahjong._history.push(cell2.present)
+						cell1.present = mahjong.TILE_NONE
+						cell2.present = mahjong.TILE_NONE
+					} else {
+						$(this).removeClass('selected')
+						$(mahjong._firstSelected).removeClass('selected')
+						delete mahjong._firstSelected
+					}
+				} else {
+					mahjong._firstSelected = this
+				}
+			})
 		},
 		setContainer: function(selector) {
 			this.container = selector

@@ -8,6 +8,10 @@ body {
 	margin: 8em 1em;
 	position: relative;
 	font-size: 8px;
+
+	-ms-user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
 }
 
 .mahjong-tile {
@@ -18,6 +22,11 @@ body {
 	border-radius: 2px;
 	position: absolute;
 	background-color: #fff;
+	cursor: pointer;
+}
+
+.mahjong-tile.selected {
+	background: #f70;
 }
 
 @font-face {
