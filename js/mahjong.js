@@ -126,13 +126,30 @@ define(function(require) {
 						if (cell && cell.present) {
 							cell.value = slice[i++]
 
-							var content = $(cell.node).find('.mahjong-tile-content')
+							var $node = $(cell.node)
+							var content = $node.find('.mahjong-tile-content')
 							content.text(cell.value)
-							if (tiles1.indexOf(cell.value) > -1) {
+
+							if (this.BING.indexOf(cell.value) > -1) {
+								$node.addClass('suit-bing')
+							} else if (this.TIAO.indexOf(cell.value) > -1) {
+								$node.addClass('suit-tiao')
+							} else if (this.WAN.indexOf(cell.value) > -1) {
+								$node.addClass('suit-wan')
+							} else if (this.WIND.indexOf(cell.value) > -1) {
+								$node.addClass('suit-wind')
+							} else if (this.DRAGON.indexOf(cell.value) > -1) {
+								$node.addClass('suit-dragon')
+							} else if (this.FLOWER.indexOf(cell.value) > -1) {
+								$node.addClass('suit-flower')
+								content.addClass('foreign-glyph')
+							} else if (this.SEASON.indexOf(cell.value) > -1) {
+								$node.addClass('suit-season')
 								content.addClass('foreign-glyph')
 							}
+							$node.addClass('map-level' + z%4)
 						}
-					})
+					}.bind(this))
 
 					if (!sliceCount) break
 

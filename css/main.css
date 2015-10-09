@@ -27,6 +27,7 @@ body {
 
 .mahjong-tile.selected {
 	background: #f70;
+	color: #fff;
 }
 
 @font-face {
@@ -45,4 +46,44 @@ body {
 
 .foreign-glyph {
 	margin-top: -2pt;
+}
+
+.suit-bing {
+	color: #4c4;
+}
+
+.suit-tiao {
+	color: #44c;
+}
+
+.suit-wan {
+	color: #c44;
+}
+
+.suit-wind {
+	color: #44c;
+}
+
+.suit-flower {
+	color: #c4c;
+}
+
+.suit-season {
+	color: #c84;
+}
+
+.map-level0 {
+	background-color: #fee;
+}
+
+.map-level1 {
+	background-color: #efe;
+}
+
+.map-level2 {
+	background-color: #eef;
+}
+
+.map-level3 {
+	background-color: #fff;
 }
