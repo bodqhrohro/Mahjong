@@ -6,3 +6,7 @@ Installation
 1. Run `bower install`
 1. Run `nws`
 1. Open in browser [localhost:3000](http://localhost:3030)
+
+Notices
+=======
+The font "Mahjong.woff" is based on [Mahjong font](http://webfonts.ffonts.net/Mahjong.font) with some glyphs from FreeSerif

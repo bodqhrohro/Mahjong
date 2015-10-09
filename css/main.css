@@ -19,3 +19,21 @@ body {
 	position: absolute;
 	background-color: #fff;
 }
+
+@font-face {
+	font-family: "Mahjong";
+	src: url("../fonts/Mahjong.woff") format('woff');
+}
+
+.mahjong-tile-content {
+	font: 36pt Mahjong;
+	text-align: center;
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+	/* TODO: vendor prefixes */
+}
+
+.foreign-glyph {
+	margin-top: -2pt;
+}

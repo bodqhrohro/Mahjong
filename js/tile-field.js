@@ -50,15 +50,16 @@ define(function() {
 			]
 		]
 
-		this.map = cellMap.map(function(level, z) {
+		return cellMap.map(function(level, z) {
 			return level.map(function(row, y) {
 				return row.map(function(cell, x) {
 					return {
 						x: x*2 + z*0.12 + (cell==3 || cell==4 ? 1 : 0),
 						y: y*2 - z*0.12 + (cell==2 || cell==4 ? 1 : 0),
 						present: !!cell,
-						suit: null,
-						value: null
+						//suit: null,
+						value: null,
+						node: null
 					}
 				})
 			})
