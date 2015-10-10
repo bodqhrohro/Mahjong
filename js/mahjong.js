@@ -1,12 +1,14 @@
 define(function(require) {
 	return {
-		BING: "qwertyuio",
-		TIAO: "zxcvbnm,.",
-		WAN: "asdfghjkl",
-		WIND: "1234",
-		DRAGON: "567",
-		FLOWER: "=[]\\",
-		SEASON: "p;/`",
+		_SUITS: {
+			bing: "qwertyuio",
+			tiao: "zxcvbnm,.",
+			wan: "asdfghjkl",
+			wind: "1234",
+			dragon: "567",
+			flower: "=[]\\",
+			season: "p;/`",
+		},
 		TILE_NONE: 0,
 		TILE_PRESENT: 1,
 		TILE_YSHIFTED: 2,
@@ -69,8 +71,8 @@ define(function(require) {
 		//depends on font!
 		_match: function(value1, value2) {
 			return value1 == value2 ||
-				this.FLOWER.indexOf(value1) > -1 && this.FLOWER.indexOf(value2) > -1 ||
-				this.SEASON.indexOf(value1) > -1 && this.SEASON.indexOf(value2) > -1
+				this._SUITS.flower.indexOf(value1) > -1 && this._SUITS.flower.indexOf(value2) > -1 ||
+				this._SUITS.season.indexOf(value1) > -1 && this._SUITS.season.indexOf(value2) > -1
 		},
 		_walkRectangle: function(level, coords, callback) {
 			var i = coords.top, j
@@ -122,8 +124,8 @@ define(function(require) {
 		},
 		//depends on font!
 		shuffle: function() {
-			var tiles4 = this.BING + this.WAN + this.TIAO + this.WIND + this.DRAGON
-			var tiles1 = this.FLOWER + this.SEASON
+			var tiles4 = this._SUITS.bing + this._SUITS.wan + this._SUITS.tiao + this._SUITS.wind + this._SUITS.dragon
+			var tiles1 = this._SUITS.flower + this._SUITS.season
 
 			var tileSet = _.shuffle(
 				tiles4 + tiles4
@@ -133,6 +135,10 @@ define(function(require) {
 
 			_.shuffle(tiles1).forEach(function(item) {
 				tileSet.splice(_.random(tileSet.length), 0, item)
+			})
+
+			$.each(this._SUITS, function(suit) {
+				$('.suit-'+suit).removeClass('suit-'+suit)
 			})
 
 			var height = this.map[0].length
@@ -172,23 +178,12 @@ define(function(require) {
 							var content = $node.find('.mahjong-tile-content')
 							content.text(cell.value)
 
-							if (this.BING.indexOf(cell.value) > -1) {
-								$node.addClass('suit-bing')
-							} else if (this.TIAO.indexOf(cell.value) > -1) {
-								$node.addClass('suit-tiao')
-							} else if (this.WAN.indexOf(cell.value) > -1) {
-								$node.addClass('suit-wan')
-							} else if (this.WIND.indexOf(cell.value) > -1) {
-								$node.addClass('suit-wind')
-							} else if (this.DRAGON.indexOf(cell.value) > -1) {
-								$node.addClass('suit-dragon')
-							} else if (this.FLOWER.indexOf(cell.value) > -1) {
-								$node.addClass('suit-flower')
-								content.addClass('foreign-glyph')
-							} else if (this.SEASON.indexOf(cell.value) > -1) {
-								$node.addClass('suit-season')
-								content.addClass('foreign-glyph')
-							}
+							$.each(this._SUITS, function(suit, set) {
+								if (set.indexOf(cell.value) > -1) {
+									$node.addClass('suit-'+suit)
+									return false
+								}
+							})
 							$node.addClass('map-level' + z%4)
 						}
 					}.bind(this))
