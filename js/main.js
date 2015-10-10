@@ -11,8 +11,10 @@ define(function (require) {
 
 			switch (action) {
 				case 'undo':
+					mahjong.undo()
 				break
 				case 'repeat':
+					mahjong.redo()
 				break
 				case 'random':
 					mahjong.shuffle()

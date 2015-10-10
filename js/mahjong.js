@@ -13,7 +13,16 @@ define(function(require) {
 		TILE_XSHIFTED: 3,
 		TILE_XYSHIFTED: 4,
 
+		_hideCells: function(cell1, cell2) {
+			$(cell1.node).fadeOut()
+			$(cell2.node).fadeOut()
+			cell1.present = -cell1.present
+			cell2.present = -cell2.present
+			this._history[this._historyPosition++] = cell1
+			this._history[this._historyPosition++] = cell2
+		},
 		_history: [],
+		_historyPosition: 0,
 		
 		_isFree: function(node) {
 			return this._isTop(node) && !this._isLocked(node)
@@ -22,12 +31,12 @@ define(function(require) {
 			var coords = $(node).data('coords')
 			return coords.x &&
 				coords.x < this.map[0][0].length-1 && (
-					this.map[coords.z][coords.y][coords.x-1].present || coords.y && (
+					this.map[coords.z][coords.y][coords.x-1].present > 0 || coords.y && (
 						this.map[coords.z][coords.y-1][coords.x-1].present == this.TILE_YSHIFTED ||
 						this.map[coords.z][coords.y-1][coords.x-1].present == this.TILE_XYSHIFTED
 					)
 				) && (
-					this.map[coords.z][coords.y][coords.x+1].present || coords.y && (
+					this.map[coords.z][coords.y][coords.x+1].present > 0 || coords.y && (
 						this.map[coords.z][coords.y-1][coords.x+1].present == this.TILE_YSHIFTED ||
 						this.map[coords.z][coords.y-1][coords.x+1].present == this.TILE_XYSHIFTED
 					)
@@ -38,7 +47,7 @@ define(function(require) {
 			if (coords.z+1 < this.map.length) {
 				var topLayer = this.map[coords.z+1]
 				return (
-					topLayer[coords.y][coords.x].present || (
+					topLayer[coords.y][coords.x].present > 0 || (
 						coords.y && (
 							topLayer[coords.y-1][coords.x].present == this.TILE_YSHIFTED ||
 							topLayer[coords.y-1][coords.x].present == this.TILE_XYSHIFTED
@@ -114,7 +123,7 @@ define(function(require) {
 					sliceCount = 0
 
 					this._walkRectangle(z, dim, function(cell) {
-						if (cell && cell.present) {
+						if (cell && cell.present > 0) {
 							sliceCount++
 						}
 					})
@@ -123,7 +132,7 @@ define(function(require) {
 					i = 0
 
 					this._walkRectangle(z, dim, function(cell) {
-						if (cell && cell.present) {
+						if (cell && cell.present > 0) {
 							cell.value = slice[i++]
 
 							var $node = $(cell.node)
@@ -175,7 +184,7 @@ define(function(require) {
 			this.map.forEach(function(level, z) {
 				level.forEach(function(row, y) {
 					row.forEach(function(cell, x) {
-						if (cell.present) {
+						if (cell.present > 0) {
 							var $tile = $(tileTemplate())
 								.appendTo(mahjong.container)
 								.css({
@@ -206,20 +215,14 @@ define(function(require) {
 				$(this).addClass('selected')
 
 				if (mahjong._firstSelected) {
-					var $node1 = $(mahjong._firstSelected)
-					,   $node2 = $(this)
-					,   coords1 = $node1.data('coords')
-					,   coords2 = $node2.data('coords')
+					var coords1 = $(this).data('coords')
+					,   coords2 = $(mahjong._firstSelected).data('coords')
 					,   cell1 = mahjong.map[coords1.z][coords1.y][coords1.x]
 					,   cell2 = mahjong.map[coords2.z][coords2.y][coords2.x]
 
 					if (mahjong._match(cell1.value, cell2.value) && mahjong._firstSelected !== this) {
-						$node1.fadeOut()
-						$node2.fadeOut()
-						mahjong._history.push(cell1.present)
-						mahjong._history.push(cell2.present)
-						cell1.present = mahjong.TILE_NONE
-						cell2.present = mahjong.TILE_NONE
+						mahjong._hideCells(cell1, cell2)
+						mahjong._history.splice(mahjong._historyPosition, mahjong._history.length - mahjong._historyPosition)
 					} else {
 						$(this).addClass('tile-error')
 						$(mahjong._firstSelected).addClass('tile-error')
@@ -233,12 +236,30 @@ define(function(require) {
 				}
 			})
 		},
+		redo: function() {
+			if (this._historyPosition < this._history.length) {
+				this._hideCells(
+					this._history[this._historyPosition],
+					this._history[this._historyPosition+1]
+				)
+			}
+		},
 		setContainer: function(selector) {
 			this.container = selector
 		},
 		scale: function(coef) {
 			this.xscale = coef
 			this.yscale = 1.4 * coef
+		},
+		undo: function() {
+			if (this._historyPosition) {
+				var cell
+				_.times(2, function() {
+					cell = this._history[--this._historyPosition]
+					cell.present = -cell.present
+					$(cell.node).fadeIn()
+				}.bind(this))
+			}
 		}
 
 	}
