@@ -196,7 +196,10 @@ define(function(require) {
 			})
 
 			$(this.container).delegate('.mahjong-tile', 'click', function() {
+				$('.tile-error').removeClass('tile-error')
+
 				if (!mahjong._isFree(this)) {
+					$(this).addClass('tile-error')
 					return false
 				}
 
@@ -211,12 +214,15 @@ define(function(require) {
 					,   cell2 = mahjong.map[coords2.z][coords2.y][coords2.x]
 
 					if (mahjong._match(cell1.value, cell2.value) && mahjong._firstSelected !== this) {
-						$node1.hide()
-						$node2.hide()
+						$node1.fadeOut()
+						$node2.fadeOut()
 						mahjong._history.push(cell1.present)
 						mahjong._history.push(cell2.present)
 						cell1.present = mahjong.TILE_NONE
 						cell2.present = mahjong.TILE_NONE
+					} else {
+						$(this).addClass('tile-error')
+						$(mahjong._firstSelected).addClass('tile-error')
 					}
 
 					$(this).removeClass('selected')
