@@ -115,7 +115,7 @@ define(function(require) {
 			}
 
 			if (solutions.length) {
-				var solution = solutions[_.random(solutions.length)]
+				var solution = solutions[_.random(solutions.length-1)]
 				$(solution[0].node).addClass('tile-help')
 				$(solution[1].node).addClass('tile-help')
 			} else {
@@ -134,7 +134,7 @@ define(function(require) {
 			}, [])
 
 			_.shuffle(tiles1).forEach(function(item) {
-				tileSet.splice(_.random(tileSet.length), 0, item)
+				tileSet.splice(_.random(tileSet.length-1), 0, item)
 			})
 
 			$.each(this._SUITS, function(suit) {
