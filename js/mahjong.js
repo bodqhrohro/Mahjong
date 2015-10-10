@@ -140,6 +140,9 @@ define(function(require) {
 			$.each(this._SUITS, function(suit) {
 				$('.suit-'+suit).removeClass('suit-'+suit)
 			})
+			$('.mahjong-tile').show()
+			this._history = []
+			this._historyPosition = 0
 
 			var height = this.map[0].length
 			,   width = this.map[0][0].length
