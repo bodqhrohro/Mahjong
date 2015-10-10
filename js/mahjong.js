@@ -87,6 +87,39 @@ define(function(require) {
 			for (; j>coords.left; j--) ret()
 			for (; i>coords.top; i--) ret()
 		},
+		help: function() {
+			var mahjong = this
+
+			var freeCells = []
+			this.map.forEach(function(level) {
+				level.forEach(function(row) {
+					row.forEach(function(cell) {
+						if (cell.present > 0) {
+							if (mahjong._isFree(cell.node)) {
+								freeCells.push(cell)
+							}
+						}
+					})
+				})
+			})
+
+			var i,j, solutions = []
+			for (i=0; i<freeCells.length-1; i++) {
+				for (j=i+1; j<freeCells.length; j++) {
+					if (mahjong._match(freeCells[i].value, freeCells[j].value)) {
+						solutions.push([freeCells[i], freeCells[j]])
+					}
+				}
+			}
+
+			if (solutions.length) {
+				var solution = solutions[_.random(solutions.length)]
+				$(solution[0].node).addClass('tile-help')
+				$(solution[1].node).addClass('tile-help')
+			} else {
+				alert('No solutions!')
+			}
+		},
 		//depends on font!
 		shuffle: function() {
 			var tiles4 = this.BING + this.WAN + this.TIAO + this.WIND + this.DRAGON
@@ -206,6 +239,7 @@ define(function(require) {
 
 			$(this.container).delegate('.mahjong-tile', 'click', function() {
 				$('.tile-error').removeClass('tile-error')
+				$('.tile-help').removeClass('tile-help')
 
 				if (!mahjong._isFree(this)) {
 					$(this).addClass('tile-error')

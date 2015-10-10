@@ -24,6 +24,7 @@ define(function (require) {
 				case 'play':
 				break
 				case 'question':
+					mahjong.help()
 				break
 			}
 				

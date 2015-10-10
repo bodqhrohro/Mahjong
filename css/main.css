@@ -89,10 +89,19 @@ body {
 }
 
 .tile-error {
-	animation: fadeout-flash 0.5s ease-in-out;
+	animation: error-flash 0.5s ease-in-out;
 }
 
-@keyframes fadeout-flash {
+@keyframes error-flash {
 	0% { background-color: #f44; }
+	100% { }
+}
+
+.tile-help {
+	animation: help-flash 2s ease-in-out;
+}
+
+@keyframes help-flash {
+	0% { background-color: #ff4; }
 	100% { }
 }
