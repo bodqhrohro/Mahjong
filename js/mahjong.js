@@ -22,8 +22,16 @@ define(function(require) {
 			$(cell2.node).fadeOut()
 			cell1.present = -cell1.present
 			cell2.present = -cell2.present
-			this._history[this._historyPosition++] = cell1
-			this._history[this._historyPosition++] = cell2
+
+			var score = this.score
+			this._updateScore()
+
+			this._history[this._historyPosition++] = {
+				cell1: cell1,
+				cell2: cell2,
+				scoreBefore: score,
+				scoreAfter: this.score
+			}
 		},
 		_history: [],
 		_historyPosition: 0,
@@ -75,6 +83,7 @@ define(function(require) {
 				this._SUITS.flower.indexOf(value1) > -1 && this._SUITS.flower.indexOf(value2) > -1 ||
 				this._SUITS.season.indexOf(value1) > -1 && this._SUITS.season.indexOf(value2) > -1
 		},
+		_prevTimestamp: 0,
 		_syncNode: function(cell, cleanSuit) {
 			var $node = $(cell.node)
 			var content = $node.find('.mahjong-tile-content')
@@ -91,6 +100,18 @@ define(function(require) {
 					}
 				}
 			})
+		},
+		_updateScore: function() {
+			if (arguments.length) {
+				this.score = arguments[0]
+			} else {
+				var timestamp = Date.now()
+				var timediff = Math.floor((timestamp - this._prevTimestamp) / 1000)
+				this.score += timediff > 30 ? 0 : 30 - timediff
+				this._prevTimestamp = timestamp
+			}
+
+			$(this.container).trigger('updateScore', {score: this.score})
 		},
 		_walkDiamond: function(level, seed, callback) {
 			var cornersReached = 0
@@ -159,9 +180,20 @@ define(function(require) {
 			} else {
 				if (confirm(i10n.gameover_f)) {
 					this.shuffleVisible()
+					this._updateScore(this.score - 100)
 				}
 			}
 		},
+		pause: function(on) {
+			if (on) {
+				this._pauseTimestamp = Date.now()
+			} else {
+				if (this._pauseTimestamp) {
+					this._prevTimestamp += (Date.now()) - this._pauseTimestamp
+				}
+			}
+		},
+		score: 0,
 		shuffle: function() {
 			var tiles4 = this._SUITS.bing + this._SUITS.wan + this._SUITS.tiao + this._SUITS.wind + this._SUITS.dragon
 			var tiles1 = this._SUITS.flower + this._SUITS.season
@@ -179,9 +211,11 @@ define(function(require) {
 			$.each(this._SUITS, function(suit) {
 				$('.suit-'+suit).removeClass('suit-'+suit)
 			})
-			this._history.forEach(function(cell) {
-				cell.present = -cell.present
-				$(cell.node).show()
+			this._history.forEach(function(backup) {
+				backup.cell1.present = -backup.cell1.present
+				backup.cell2.present = -backup.cell2.present
+				$(backup.cell1.node).show()
+				$(backup.cell2.node).show()
 			})
 			this._history = []
 			this._historyPosition = 0
@@ -217,6 +251,8 @@ define(function(require) {
 					}
 				}.bind(this))
 			}.bind(this))
+
+			this._prevTimestamp = Date.now()
 		},
 		shuffleVisible: function() {
 			var visibleCells = []
@@ -307,10 +343,12 @@ define(function(require) {
 		},
 		redo: function() {
 			if (this._historyPosition < this._history.length) {
+				var backup = this._history[this._historyPosition]
 				this._hideCells(
-					this._history[this._historyPosition],
-					this._history[this._historyPosition+1]
+					backup.cell1,
+					backup.cell2
 				)
+				this._updateScore(backup.scoreAfter)
 			}
 		},
 		setContainer: function(selector) {
@@ -322,12 +360,14 @@ define(function(require) {
 		},
 		undo: function() {
 			if (this._historyPosition) {
-				var cell
-				_.times(2, function() {
-					cell = this._history[--this._historyPosition]
-					cell.present = -cell.present
-					$(cell.node).fadeIn()
-				}.bind(this))
+				var backup = this._history[--this._historyPosition]
+
+				backup.cell1.present = -backup.cell1.present
+				backup.cell2.present = -backup.cell2.present
+				$(backup.cell1.node).fadeIn()
+				$(backup.cell2.node).fadeIn()
+
+				this._updateScore(backup.scoreBefore)
 			}
 		}
 

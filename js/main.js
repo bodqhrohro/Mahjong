@@ -20,8 +20,16 @@ define(function (require) {
 					mahjong.shuffle()
 				break
 				case 'pause':
+					mahjong.pause(true)
+					$(this).hide()
+					$('#mainToolbar .fa-play').closest('a').show()
+					$('#gameViewport').css('opacity', 0.1)
 				break
 				case 'play':
+					mahjong.pause(false)
+					$(this).hide()
+					$('#mainToolbar .fa-pause').closest('a').show()
+					$('#gameViewport').css('opacity', 1)
 				break
 				case 'question':
 					mahjong.help()
@@ -34,5 +42,9 @@ define(function (require) {
 		mahjong.scale(3)
 		mahjong.init()
 		mahjong.shuffle()
+
+		$(mahjong.container).on('updateScore', function(e, data) {
+			$('#scoreValue').text(data.score)
+		})
 	})
 })
