@@ -253,6 +253,7 @@ define(function(require) {
 			}.bind(this))
 
 			this._prevTimestamp = Date.now()
+			this.score = 0
 		},
 		shuffleVisible: function() {
 			var visibleCells = []
