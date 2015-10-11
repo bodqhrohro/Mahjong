@@ -68,15 +68,26 @@ define(function(require) {
 				return true
 			}
 		},
-		//depends on font!
 		_match: function(value1, value2) {
 			return value1 == value2 ||
 				this._SUITS.flower.indexOf(value1) > -1 && this._SUITS.flower.indexOf(value2) > -1 ||
 				this._SUITS.season.indexOf(value1) > -1 && this._SUITS.season.indexOf(value2) > -1
 		},
-		_walkRectangle: function(level, coords, callback) {
-			var i = coords.top, j
-			var ret = function() {
+		_walkDiamond: function(level, seed, callback) {
+			var cornersReached = 0
+			,   i, j , k
+			,   height = this.map[0].length
+			,   width = this.map[0][0].length
+
+			var tryCell = function(i, j) {
+				if (
+					!i && !j ||
+					!i && j==width-1 ||
+					i==height-1 && !j ||
+					i==height-1 && j==width-1
+				) {
+					cornersReached++
+				}
 				try {
 					callback(this.map[level][i][j])
 				} catch(e) {
@@ -84,10 +95,18 @@ define(function(require) {
 				}
 			}.bind(this)
 
-			for (j=coords.left; j<coords.right; j++) ret()
-			for (i=coords.top; i<coords.bottom; i++) ret()
-			for (; j>coords.left; j--) ret()
-			for (; i>coords.top; i--) ret()
+			tryCell(seed.y, seed.x)
+			tryCell(seed.y, seed.x+1)
+			for (k=1; cornersReached < 4; k++) {
+				for (i = seed.y-k, j = seed.x; i < seed.y; i++, j--) {
+					tryCell(i, j)
+					tryCell(i, j + 2*(seed.x-j) + 1)
+				}
+				for (; j <= seed.x; i++, j++) {
+					tryCell(i, j)
+					tryCell(i, j + 2*(seed.x-j) + 1)
+				}
+			}
 		},
 		help: function() {
 			var mahjong = this
@@ -122,7 +141,6 @@ define(function(require) {
 				alert('No solutions!')
 			}
 		},
-		//depends on font!
 		shuffle: function() {
 			var tiles4 = this._SUITS.bing + this._SUITS.wan + this._SUITS.tiao + this._SUITS.wind + this._SUITS.dragon
 			var tiles1 = this._SUITS.flower + this._SUITS.season
@@ -140,7 +158,10 @@ define(function(require) {
 			$.each(this._SUITS, function(suit) {
 				$('.suit-'+suit).removeClass('suit-'+suit)
 			})
-			$('.mahjong-tile').show()
+			this._history.forEach(function(cell) {
+				cell.present = -cell.present
+				$(cell.node).show()
+			})
 			this._history = []
 			this._historyPosition = 0
 
@@ -148,61 +169,43 @@ define(function(require) {
 			,   width = this.map[0][0].length
 			,   startx = Math.floor(width/2)
 			,   starty = Math.floor(height/2)
-			,   dim = {
-				left: 0,
-				right: 0,
-				top: 0,
-				bottom: 0
-			}, i, sliceCount, slice
+			,   i, sliceCount, slice, seed
 
 			this.map.forEach(function(level, z) {
-				dim.left = startx-1
-				dim.right = startx
-				dim.top = starty-1
-				dim.bottom = starty
+				sliceCount = 0
+				seed = {
+					/*x: _.random(width-1),
+					y: _.random(height-1)*/
+					x: startx,
+					y: starty
+				}
 
-				do {
-					sliceCount = 0
+				this._walkDiamond(z, seed, function(cell) {
+					if (cell && cell.present > 0) {
+						sliceCount++
+					}
+				})
 
-					this._walkRectangle(z, dim, function(cell) {
-						if (cell && cell.present > 0) {
-							sliceCount++
-						}
-					})
+				slice = _.shuffle(tileSet.splice(0, sliceCount))
+				i = 0
 
-					slice = _.shuffle(tileSet.splice(0, sliceCount))
-					i = 0
+				this._walkDiamond(z, seed, function(cell) {
+					if (cell && cell.present > 0) {
+						cell.value = slice[i++]
 
-					this._walkRectangle(z, dim, function(cell) {
-						if (cell && cell.present > 0) {
-							cell.value = slice[i++]
+						var $node = $(cell.node)
+						var content = $node.find('.mahjong-tile-content')
+						content.text(cell.value)
 
-							var $node = $(cell.node)
-							var content = $node.find('.mahjong-tile-content')
-							content.text(cell.value)
-
-							$.each(this._SUITS, function(suit, set) {
-								if (set.indexOf(cell.value) > -1) {
-									$node.addClass('suit-'+suit)
-									return false
-								}
-							})
-							$node.addClass('map-level' + z%4)
-						}
-					}.bind(this))
-
-					if (!sliceCount) break
-
-					dim.left--
-					dim.top--
-					dim.right++
-					dim.bottom++
-				} while (
-					dim.left > -1 ||
-					dim.top > -1 ||
-					dim.right < width ||
-					dim.bottom < height
-				)
+						$.each(this._SUITS, function(suit, set) {
+							if (set.indexOf(cell.value) > -1) {
+								$node.addClass('suit-'+suit)
+								return false
+							}
+						})
+						$node.addClass('map-level' + z%4)
+					}
+				}.bind(this))
 			}.bind(this))
 		},
 		init: function() {
