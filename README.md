@@ -10,3 +10,4 @@ Installation
 Notices
 =======
 The font "Mahjong.woff" is based on [Mahjong font](http://webfonts.ffonts.net/Mahjong.font) with some glyphs from FreeSerif
+Online version is available at [Github Pages](http://bodqhrohro.github.io/Mahjong/).
