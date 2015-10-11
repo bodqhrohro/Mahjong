@@ -1,4 +1,6 @@
 define(function(require) {
+	var i10n = require('../i10n/en')
+
 	return {
 		_SUITS: {
 			bing: "qwertyuio",
@@ -73,6 +75,23 @@ define(function(require) {
 				this._SUITS.flower.indexOf(value1) > -1 && this._SUITS.flower.indexOf(value2) > -1 ||
 				this._SUITS.season.indexOf(value1) > -1 && this._SUITS.season.indexOf(value2) > -1
 		},
+		_syncNode: function(cell, cleanSuit) {
+			var $node = $(cell.node)
+			var content = $node.find('.mahjong-tile-content')
+			content.text(cell.value)
+
+			$.each(this._SUITS, function(suit, set) {
+				if (cleanSuit) {
+					$node.removeClass('suit-'+suit)
+				}
+				if (set.indexOf(cell.value) > -1) {
+					$node.addClass('suit-'+suit)
+					if (!cleanSuit) {
+						return false
+					}
+				}
+			})
+		},
 		_walkDiamond: function(level, seed, callback) {
 			var cornersReached = 0
 			,   i, j , k
@@ -138,7 +157,9 @@ define(function(require) {
 				$(solution[0].node).addClass('tile-help')
 				$(solution[1].node).addClass('tile-help')
 			} else {
-				alert('No solutions!')
+				if (confirm(i10n.gameover_f)) {
+					this.shuffleVisible()
+				}
 			}
 		},
 		shuffle: function() {
@@ -192,20 +213,32 @@ define(function(require) {
 				this._walkDiamond(z, seed, function(cell) {
 					if (cell && cell.present > 0) {
 						cell.value = slice[i++]
-
-						var $node = $(cell.node)
-						var content = $node.find('.mahjong-tile-content')
-						content.text(cell.value)
-
-						$.each(this._SUITS, function(suit, set) {
-							if (set.indexOf(cell.value) > -1) {
-								$node.addClass('suit-'+suit)
-								return false
-							}
-						})
-						$node.addClass('map-level' + z%4)
+						this._syncNode(cell, false)
 					}
 				}.bind(this))
+			}.bind(this))
+		},
+		shuffleVisible: function() {
+			var visibleCells = []
+
+			this.map.forEach(function(level, z) {
+				level.forEach(function(row, y) {
+					row.forEach(function(cell, x) {
+						if (cell.present > 0) {
+							visibleCells.push(cell)
+						}
+					})
+				})
+			})
+
+			cellValues = visibleCells.map(function(cell) {
+				return cell.value
+			})
+			cellValues = _.shuffle(cellValues)
+
+			visibleCells.forEach(function(cell, index) {
+				cell.value = cellValues[index]
+				this._syncNode(cell, true)
 			}.bind(this))
 		},
 		init: function() {
@@ -221,6 +254,7 @@ define(function(require) {
 						if (cell.present > 0) {
 							var $tile = $(tileTemplate())
 								.appendTo(mahjong.container)
+								.addClass('map-level' + z%4)
 								.css({
 									'top': cell.y * mahjong.yscale + 'em',
 									'left': cell.x * mahjong.xscale + 'em',
